@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy BirthDay</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="cake">
+      <p id="instructions" class="instructions">Touch the candle.</p>
+      <div class="plate"></div>
+      <div class="layer layer-bottom"></div>
+      <div class="layer layer-middle"></div>
+      <div class="layer layer-top"></div>
+      <div class="icing"></div>
+      <div class="drip drip1"></div>
+      <div class="drip drip2"></div>
+      <div class="drip drip3"></div>
+      <div class="candle">
+        <div class="flame"></div>
+      </div>
+    </div>
+
+    <div id="balloon-container"></div>
+    <div id="typing-message" class="typing-message"></div>
+
+    <script>
+      const candle = document.querySelector(".candle");
+      const flame = document.querySelector(".flame");
+      const instructions = document.getElementById("instructions");
+      const balloonContainer = document.getElementById("balloon-container");
+
+      let state = "unlit";
+
+      function updateInstructions(text) {
+        instructions.classList.add("fade-out");
+        setTimeout(() => {
+          instructions.textContent = text;
+          instructions.classList.remove("fade-out");
+        }, 400);
+      }
+
+      function random(num) {
+        return Math.floor(Math.random() * num);
+      }
+
+      function createFloatAnimationName(index) {
+        const name = `float${index}`;
+        const style = document.createElement("style");
+
+        const sway = Math.floor(Math.random() * 30) - 15; // sway range: -15 to +15
+        const swayMid = Math.floor(Math.random() * 30) - 15;
+
+        style.textContent = `
+    @keyframes ${name} {
+      0% {
+        transform: translate(${sway}px, 0) translateY(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translate(${swayMid}px, 0) translateY(-150vh);
+      }
+      100% {
+        transform: translate(${sway}px, 0) translateY(-300vh);
+        opacity: 0;
+      }
+    }
+  `;
+        document.head.appendChild(style);
+        return name;
+      }
+
+      function getRandomStyles(index) {
+        const r = random(255);
+        const g = random(255);
+        const b = random(255);
+        const left = random(window.innerWidth - 100);
+        const dur = random(5) + 5;
+        const animName = createFloatAnimationName(index);
+
+        return `
+    background-color: rgba(${r},${g},${b},0.7);
+    color: rgba(${r},${g},${b},0.7);
+    box-shadow: inset -7px -3px 10px rgba(${r - 10},${g - 10},${b - 10},0.7);
+    top: 100vh;
+    left: ${left}px;
+    position: absolute;
+    animation: ${animName} ${dur}s ease-in infinite;
+  `;
+      }
+
+      function createBalloons(num) {
+        for (let i = 0; i < num; i++) {
+          const balloon = document.createElement("div");
+          balloon.className = "balloon";
+          balloon.style.cssText = getRandomStyles(i); // pass index
+          balloonContainer.append(balloon);
+        }
+      }
+
+      function removeBalloons() {
+        balloonContainer.style.opacity = 0;
+        setTimeout(() => {
+          balloonContainer.innerHTML = ""; // clear children
+          balloonContainer.style.opacity = 1;
+        }, 500);
+      }
+
+      candle.addEventListener("click", () => {
+        if (state === "unlit") {
+          flame.classList.add("show");
+          updateInstructions("Make a wish and touch the candle again.");
+          state = "lit";
+        } else if (state === "lit") {
+          flame.classList.remove("show");
+          updateInstructions("Happy Birthday! 🎉🎂");
+          createBalloons(30);
+          launchConfetti();
+          showTypingMessage(
+            "Wishing you a day filled with love and cake! 🎂 Have the sweetest birthday ever! Nanda 🥳"
+          );
+          document.getElementById("birthday-audio").play();
+          state = "stingwish";
+        }
+      });
+
+      window.addEventListener("click", (e) => {
+        if (state === "stingwish" && !e.target.classList.contains("candle")) {
+        }
+      });
+      function showTypingMessage(text) {
+        const typingEl = document.getElementById("typing-message");
+        typingEl.style.opacity = 1;
+        typingEl.innerHTML = "";
+        let i = 0;
+
+        const formattedText = text.replace(/\n/g, "<br>");
+
+        function type() {
+          if (i < formattedText.length) {
+            typingEl.innerHTML += formattedText.charAt(i);
+            i++;
+            setTimeout(type, 80);
+          } else {
+            typingEl.style.borderRight = "none";
+          }
+        }
+
+        type();
+      }
+
+      function launchConfetti() {
+        const duration = 3 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = {
+          startVelocity: 30,
+          spread: 360,
+          ticks: 60,
+          zIndex: 2000,
+        };
+
+        function randomInRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function () {
+          const timeLeft = animationEnd - Date.now();
+
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
+          }
+
+          confetti({
+            ...defaults,
+            particleCount: 5,
+            origin: {
+              x: randomInRange(0.1, 0.9),
+              y: Math.random() - 0.2,
+            },
+          });
+        }, 200);
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <audio id="birthday-audio" src="happy-birthday.mp3"></audio>
+  </body>
+</html>

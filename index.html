@@ -115,7 +115,7 @@
         } else if (state === "lit") {
           flame.classList.remove("show");
           updateInstructions("Happy Birthday! 🎉🎂");
-          createBalloons(30);
+          createBalloons(15);
           launchConfetti();
           showTypingMessage(
             "Wishing you a day filled with love and cake! 🎂 Have the sweetest birthday ever! Nanda 🥳"
@@ -151,7 +151,7 @@
       }
 
       function launchConfetti() {
-        const duration = 3 * 1000;
+        const duration = 100 * 1000;
         const animationEnd = Date.now() + duration;
         const defaults = {
           startVelocity: 30,
